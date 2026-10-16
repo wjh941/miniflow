@@ -1,4 +1,26 @@
-# MiniFlow · 轻博客社区（MVP）
+<div align="center">
+
+# ⚡ MiniFlow
+
+**一个用 React 18 构建的迷你博客社区 · React 入门实战项目**
+
+文章列表 / 搜索标签筛选 · 点赞 · 模拟登录 · 写文章 · React Router 路由
+
+[![React](https://img.shields.io/badge/React-18-61dafb?logo=react&logoColor=white)](https://react.dev)
+[![Vite](https://img.shields.io/badge/Vite-5-646cff?logo=vite&logoColor=white)](https://vitejs.dev)
+[![React_Router](https://img.shields.io/badge/React_Router-6-ca4245)](https://reactrouter.com)
+
+</div>
+
+## 🖼️ 界面预览
+
+**文章列表** —— 搜索关键词、标签筛选、点赞数一目了然：
+
+![文章列表](docs/images/home.png)
+
+**写文章** —— 登录后进入编辑器，表单校验 + 标签 + Markdown 小标题渲染：
+
+![编辑器](docs/images/editor.png)
 
 一个用 React 构建的迷你博客社区，也是你的 React 入门实战项目。
 当前为 **MVP 版本**：纯前端实现，所有数据保存在浏览器 localStorage，无需后端。
