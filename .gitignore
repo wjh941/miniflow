@@ -2,3 +2,8 @@ node_modules
 dist
 *.local
 .DS_Store
+
+# 调试临时文件
+_dom.html
+_served.css
+docs/images/_*
