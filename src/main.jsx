@@ -12,5 +12,14 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <App />
       </AppProvider>
     </BrowserRouter>
-  </React.StrictMode>
+  </React.StrictMode>,
 )
+
+// PWA:仅生产环境注册 Service Worker(开发时不缓存,免得改代码不生效)
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {
+      /* 注册失败不影响使用 */
+    })
+  })
+}
