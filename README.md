@@ -10,6 +10,8 @@
 [![Vite](https://img.shields.io/badge/Vite-5-646cff?logo=vite&logoColor=white)](https://vitejs.dev)
 [![React_Router](https://img.shields.io/badge/React_Router-6-ca4245)](https://reactrouter.com)
 
+
+> 🎬 **使用场景**：刚学 React 的你，看完文档还是不知道怎么"做出一个东西"。MiniFlow 就是那句"跟着做一遍就会了"：列表、路由、状态、表单，每一页都对应一个核心概念。
 </div>
 
 ## 🖼️ 界面预览
