@@ -308,7 +308,7 @@ v2.0 的重构回答了一个问题：**如果这是我每天真的要用的工�
 
 ## 1. PySide6：QMessageBox.question called with wrong argument types
 
-![PySide6 TypeError](../docs/images/term_pyside.png)
+![PySide6 TypeError](./images/term_pyside.png)
 
 > ⚠️ 报错在说：question() 这个方法存在，但你传的参数类型组合它不认识。Supported signatures 列出了它唯一接受的签名——parent, title, text 三个位置参数之后，buttons 和 defaultButton 必须用关键字传。
 
@@ -328,7 +328,7 @@ QMessageBox.question(w, "标题", "内容", QMessageBox.Yes | QMessageBox.No, QM
 
 ## 2. GitHub Actions：libEGL / libpulse / libasound2 三连
 
-![CI 三连失败](../docs/images/term_ci.png)
+![CI 三连失败](./images/term_ci.png)
 
 > ⚠️ 报错在说：三条都是"找不到 .so 共享库"。libEGL 是 GPU 图形接口，libpulse 是音频服务——Qt 应用在无显示器的 Linux 服务器上跑测试，既需要离屏渲染的图形库，也需要 Qt Multimedia 依赖的音频库。
 
@@ -358,7 +358,7 @@ sudo apt-get install -y libegl1 libgl1 libxkbcommon0 libdbus-1-3 libfontconfig1 
 
 ## 4. Windows 终端：GBK 乱码
 
-![GBK 乱码](../docs/images/term_gbk.png)
+![GBK 乱码](./images/term_gbk.png)
 
 > ⚠️ 这不是报错，是正常输出的中文被渲染成了乱码。左侧 UTF-8 字节流被按 GBK(Windows 简体中文默认代码页 936)解析。
 
