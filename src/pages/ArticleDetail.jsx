@@ -13,6 +13,48 @@ function renderBody(content) {
       return <h2 key={i}>{trimmed.replace(/^##\s+/, '')}</h2>
     }
     if (trimmed === '---') return <hr key={i} />
+    // 代码块:```lang ... ```
+    if (trimmed.startsWith('```')) {
+      const code = trimmed.replace(/^```\w*\n?/, '').replace(/\n?```$/, '')
+      return (
+        <pre key={i} className="code-block"><code>{code}</code></pre>
+      )
+    }
+    // 提示框:> 💡 或 > ⚠ 或 > ✅
+    const callout = trimmed.match(/^>\s*(💡|⚠️?|✅|❌)\s*(.*)$/s)
+    if (callout) {
+      const icons = { '💡': '💡', '⚠': '⚠️', '⚠️': '⚠️', '✅': '✅', '❌': '❌' }
+      const tone = callout[1] === '⚠' || callout[1] === '⚠️' ? 'warn' : callout[1] === '❌' ? 'bad' : 'tip'
+      return (
+        <div key={i} className={`callout callout-${tone}`}>
+          <span className="callout-icon">{icons[callout[1]] || '💡'}</span>
+          <span>{renderInline(callout[2])}</span>
+        </div>
+      )
+    }
+    // 无序列表:- 开头(连续多行)
+    if (/^[-•]\s/m.test(trimmed) && trimmed.split('\n').every(l => /^[-•]\s/.test(l.trim()))) {
+      const items = trimmed.split('\n').map(l => l.replace(/^[-•]\s+/, '').trim())
+      return (
+        <div key={i} className="bullet-list">
+          {items.map((item, j) => <div key={j} className="bullet-item">{renderInline(item)}</div>)}
+        </div>
+      )
+    }
+    // 有序列表:1. 开头
+    if (/^\d+\.\s/m.test(trimmed) && trimmed.split('\n').every(l => /^\d+\.\s/.test(l.trim()))) {
+      const items = trimmed.split('\n').map(l => l.replace(/^\d+\.\s+/, '').trim())
+      return (
+        <div key={i} className="numbered-list">
+          {items.map((item, j) => (
+            <div key={j} className="numbered-item">
+              <span className="num-badge">{j + 1}</span>
+              {renderInline(item)}
+            </div>
+          ))}
+        </div>
+      )
+    }
     const img = trimmed.match(/^!\[([^\]]*)\]\(([^)]+)\)$/)
     if (img) {
       return (
@@ -39,13 +81,15 @@ function renderBody(content) {
   })
 }
 
-/** 内联格式:**文字** 渲染为加粗 */
+/** 内联格式:**文字** 加粗 + `代码` 高亮 */
 function renderInline(text) {
-  return String(text || '').split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
-    part.startsWith('**') && part.endsWith('**')
-      ? <strong key={i}>{part.slice(2, -2)}</strong>
-      : part,
-  )
+  return String(text || '').split(/(\*\*[^*]+\*\*|`[^`]+`)/g).filter(Boolean).map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**'))
+      return <strong key={i}>{part.slice(2, -2)}</strong>
+    if (part.startsWith('`') && part.endsWith('`'))
+      return <code key={i} className="inline-code">{part.slice(1, -1)}</code>
+    return part
+  })
 }
 
 export default function ArticleDetail() {
