@@ -310,69 +310,78 @@ v2.0 的重构回答了一个问题：**如果这是我每天真的要用的工�
 
 ![PySide6 TypeError](../docs/images/term_pyside.png)
 
-**报错在说什么**：PySide6 在告诉你——question() 这个方法存在,但你传的参数类型组合它不认识。注意 Supported signatures 列出了它唯一接受的签名:parent, title, text 三个位置参数之后,buttons 和 defaultButton **必须用关键字传**。
+> ⚠️ 报错在说：question() 这个方法存在，但你传的参数类型组合它不认识。Supported signatures 列出了它唯一接受的签名——parent, title, text 三个位置参数之后，buttons 和 defaultButton 必须用关键字传。
 
-**为什么会发生**:Qt5 时代可以这样写:
+**为什么会发生**：Qt5 时代可以这样写：
 
+\`\`\`python
 QMessageBox.question(w, "标题", "内容", QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
+\`\`\`
 
-迁移到 PySide6 后,shiboken 类型系统对 StandardButton 和 StandardButtons 做了严格区分——位置传参和关键字传参都会因类型不匹配被拒。我在 video_labeler 里写的是实例化前传两个位置标志,同样被拒。
+迁移到 PySide6 后，shiboken 类型系统对 StandardButton 和 StandardButtons 做了严格区分——位置传参和关键字传参都会因类型不匹配被拒。
 
-**怎么解决的**:不走静态方法,实例化后逐项设置:
+**怎么解决**：不走静态方法，实例化后逐项设置。
 
-box = QMessageBox(window)
-box.setWindowTitle("标题")
-box.setText("内容")
-box.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
-box.setDefaultButton(QMessageBox.StandardButton.Yes)
-if box.exec() == QMessageBox.StandardButton.Yes:
+**如何避免**：Qt 桌面应用的静态弹窗方法在 PySide6 全系都不稳定，一律用实例化写法；给启动链路写回归测试——这个 bug 正是回归测试抓到的。
 
-**如何避免**:Qt 桌面应用的静态弹窗方法在 PySide6 全系都不稳定,一律用实例化写法;并且给启动链路写回归测试——这个 bug 正是回归测试抓到的。
+---
 
 ## 2. GitHub Actions：libEGL / libpulse / libasound2 三连
 
 ![CI 三连失败](../docs/images/term_ci.png)
 
-**报错在说什么**:三条都是"找不到 .so 共享库"。libEGL 是 GPU 图形接口,libpulse 是音频服务——Qt 应用在无显示器的 Linux 服务器上跑测试,既需要离屏渲染的图形库,也需要 Qt Multimedia 依赖的音频库。
+> ⚠️ 报错在说：三条都是"找不到 .so 共享库"。libEGL 是 GPU 图形接口，libpulse 是音频服务——Qt 应用在无显示器的 Linux 服务器上跑测试，既需要离屏渲染的图形库，也需要 Qt Multimedia 依赖的音频库。
 
-**为什么会发生**:ubuntu-latest 镜像默认不带这些库。而且有个隐蔽点:libasound2 在 Ubuntu 24.04 已被重命名为 libasound2t64,按旧名字 apt install 会报 has no installation candidate。
+**为什么会发生**：ubuntu-latest 镜像默认不带这些库。而且有个隐蔽点：libasound2 在 Ubuntu 24.04 已被重命名为 libasound2t64，按旧名字 apt install 会报 has no installation candidate。
 
-**怎么解决的**:工作流里显式安装:
+**怎么解决**：
 
+\`\`\`bash
 sudo apt-get install -y libegl1 libgl1 libxkbcommon0 libdbus-1-3 libfontconfig1 libpulse0
+\`\`\`
 
-**如何避免**:给 Qt 项目写 CI,先在本地容器里把系统依赖跑通再写 workflow;遇到 apt 报错优先怀疑包名随 Ubuntu 版本改名。
+**如何避免**：给 Qt 项目写 CI，先在本地容器里把系统依赖跑通再写 workflow；遇到 apt 报错优先怀疑包名随 Ubuntu 版本改名。
+
+---
 
 ## 3. Node.js：ERR_BUFFER_TOO_LARGE
 
-**报错在说什么**:zlib 解压时,输出超过了 maxOutputLength 限制。Chromium 内核把它归为 Z_DATA_ERROR 家族的错误。
+> 💡 报错在说：zlib 解压时，输出超过了 maxOutputLength 限制。
 
-**为什么会发生**:chen-sheng-assistant 支持上传 .xlsx 导入订单,而 .xlsx 本质是 zip 容器。攻击者可以构造一个"zip 炸弹"——原始数据 128MB 压缩后只有 130KB,通过 8MB 的上传限制后,解压时内存直接爆炸。原代码的 inflateRawSync 没有任何输出上限。
+**为什么会发生**：chen-sheng-assistant 支持上传 .xlsx 导入订单，而 .xlsx 本质是 zip 容器。攻击者可以构造一个"zip 炸弹"——原始数据 128MB 压缩后只有 130KB，通过 8MB 的上传限制后，解压时内存直接爆炸。原代码的 inflateRawSync 没有任何输出上限。
 
-**怎么解决的**:两道防线——单条目设 maxOutputLength(64MB),所有条目共享一个"剩余额度"记账,防止"多个小炸弹绕过单条上限";并把 Z_BUF_ERROR / ERR_BUFFER_TOO_LARGE 翻译成人话提示("文件解压后超过上限,疑似恶意构造")。配了真实 zip 炸弹的回归测试。
+**怎么解决**：两道防线——单条目设 maxOutputLength(64MB)，所有条目共享一个"剩余额度"记账，防止"多个小炸弹绕过单条上限"；并把错误翻译成人话提示。
 
-**如何避免**:凡是处理用户上传的压缩文件,解压前必须设输出上限 + 总量记账。"压缩比异常"本身就是恶意文件的信号。
+**如何避免**：凡是处理用户上传的压缩文件，解压前必须设输出上限 + 总量记账。"压缩比异常"本身就是恶意文件的信号。
 
-## 4. Windows 终端：GBK 乱码(不是 bug,是编码战争)
+---
+
+## 4. Windows 终端：GBK 乱码
 
 ![GBK 乱码](../docs/images/term_gbk.png)
 
-**报错在说什么**:这不是报错,是正常输出的中文被渲染成了乱码。左侧 UTF-8 字节流被按 GBK(Windows 简体中文默认代码页 936)解析,每 3 字节 UTF-8 中文被拆成 1.5 个 GBK 字符,拼出"缁撴灉宸插啓鍏"这样的密码。
+> ⚠️ 这不是报错，是正常输出的中文被渲染成了乱码。左侧 UTF-8 字节流被按 GBK(Windows 简体中文默认代码页 936)解析。
 
-**为什么会发生**:Node 18+ 在 Windows 上输出 UTF-8,但传统 cmd/PowerShell 管道默认按 GBK 解读。git-bash 里正常、双击 .bat 里乱码、VS Code 终端里又正常——因为每个终端的代码页设置不同。
+**为什么会发生**：Node 18+ 在 Windows 上输出 UTF-8，但传统 cmd/PowerShell 管道默认按 GBK 解读。git-bash 里正常、双击 .bat 里乱码、VS Code 终端里又正常——因为每个终端的代码页设置不同。
 
-**怎么解决的**:merchant-copilot 的方案是在提案入口做编码防护,拦截含非法 GBK 映射的字符序列(用户实测反馈后修复);更根本的解法是让终端执行 chcp 65001 切到 UTF-8,或在 Node 里用 process.stdout.setEncoding。
+**怎么解决**：入口做编码防护拦截非法序列；更根本的是让终端执行 chcp 65001 切到 UTF-8。
 
-**如何避免**:Windows 上的 CLI 工具,输出前显式声明编码;README 里注明"请使用 Windows Terminal 或 VS Code 终端运行"。
+**如何避免**：Windows 上的 CLI 工具，输出前显式声明编码；README 里注明"请使用 Windows Terminal 运行"。
+
+---
 
 ## 5. 前端：Cannot read properties of undefined (reading "createContext")
 
-**报错在说什么**:代码在 undefined 上调用了 createContext——也就是说,执行到这行时 React 这个对象还是 undefined。antd 在 React 初始化之前就被执行了。
+> ❌ 报错在说：代码在 undefined 上调用了 createContext——执行到这行时 React 这个对象还是 undefined。antd 在 React 初始化之前就被执行了。
 
-**为什么会发生**:构建优化的 manualChunks 函数式分包,把路径含 "react" 的模块(包括 rc-util 内部的 React/ 目录)错分进 react chunk,而这些模块又依赖 antd——chunk 之间形成循环引用,加载顺序崩塌。本地开发模式不做同样的分包,所以只有生产构建白屏。
+**为什么会发生**：构建优化的 manualChunks 函数式分包，把路径含 "react" 的模块错分进 react chunk，而这些模块又依赖 antd——chunk 之间形成循环引用，加载顺序崩塌。本地开发模式不做同样的分包，所以只有生产构建白屏。
 
-**怎么解决的**:只对零依赖叶子库手动分包,其余交给默认策略。
+**怎么解决**：只对零依赖叶子库手动分包，其余交给默认策略。
 
-**如何避免**:每次改分包配置,必须用 vite preview 验证生产构建,不能只看 dev 模式。白屏类问题的共同点是"构建成功 ≠ 运行成功"。`,
+**如何避免**：每次改分包配置，必须用 vite preview 验证生产构建。白屏类问题的共同点是"构建成功 ≠ 运行成功"。
+
+---
+
+> 💡 **要点回顾**：报错信息是机器在跟你说话——它告诉你"哪个文件、哪一行、什么类型的操作失败了"。读懂报错的三个步骤：① 先看类型(TypeError / ImportError / 语法错误)；② 再看具体消息里提到的对象或模块名；③ 最后回到代码行号确认上下文。大部分报错在第二步就能定位。`,
   },
 ];
