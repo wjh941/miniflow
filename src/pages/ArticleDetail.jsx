@@ -4,7 +4,7 @@ import { useApp } from '../context/AppContext'
 import { exportPostMarkdown } from '../lib/store'
 import { IconEdit, IconTrash, IconDownload } from '../components/icons'
 
-/** 正文渲染:## 开头渲染为小标题,空行分段,保留换行 */
+/** 正文渲染:## 开头渲染为小标题,![alt](src) 渲染为图片,空行分段,保留换行 */
 function renderBody(content) {
   const blocks = String(content || '').split(/\n\n+/)
   return blocks.map((block, i) => {
@@ -13,6 +13,19 @@ function renderBody(content) {
       return <h2 key={i}>{trimmed.replace(/^##\s+/, '')}</h2>
     }
     if (trimmed === '---') return <hr key={i} />
+    const img = trimmed.match(/^!\[([^\]]*)\]\(([^)]+)\)$/)
+    if (img) {
+      return (
+        <p key={i} style={{ textAlign: 'center', margin: '14px 0' }}>
+          <img
+            src={img[2]}
+            alt={img[1]}
+            style={{ maxWidth: '100%', borderRadius: 'var(--radius)', border: '0.5px solid var(--sep)' }}
+            loading="lazy"
+          />
+        </p>
+      )
+    }
     return (
       <p key={i}>
         {trimmed.split('\n').map((line, j) => (
