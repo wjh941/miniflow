@@ -182,8 +182,8 @@ a { color: var(--blue); text-decoration: none; }
 }
 
 .card-gradient {
-  height: 5px; display: flex; align-items: center; justify-content: flex-end;
-  padding: 0 16px; gap: 10px;
+  height: 42px; display: flex; align-items: flex-end; justify-content: flex-end;
+  padding: 0 16px 6px; gap: 10px;
 }
 .card-gradient .card-date, .card-gradient .card-read {
   font-size: 10px; color: rgba(255, 255, 255, 0.8); mix-blend-mode: overlay;
