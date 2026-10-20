@@ -388,7 +388,7 @@ sudo apt-get install -y libegl1 libgl1 libxkbcommon0 libdbus-1-3 libfontconfig1 
     id: 'c_design_review',
     title: '产品设计复盘：我的三个盲区',
     tags: ['产品设计', '思维'],
-    date: '2026-10-20',
+    createdAt: '2026-10-20',
     content: `我把 16 个项目的开发过程摊开来看,发现了三个反复出现的设计盲区。不是代码 bug,是**想事情的方式**有问题。
 
 ## 盲区一：先写代码,后想边界
@@ -432,7 +432,7 @@ yunfan-admin 做了命令面板、多标签页、图表下钻。但作为作品�
     id: 'c_direction_pm',
     title: '下一个项目：我自己的项目管理助手',
     tags: ['方向', '工作流'],
-    date: '2026-10-20',
+    createdAt: '2026-10-20',
     content: `我管理着 13+ 个 GitHub 仓库,每周的日常是这样的:推送代码 → 看 CI → 修 bug → 写 README → 截图 → 更新备份 → 检查图片路径。这些事里有很多重复劳动——所以我决定做一个属于自己的项目管理助手。
 
 ## 要解决什么
