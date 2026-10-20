@@ -28,15 +28,24 @@ function renderBody(content) {
     }
     return (
       <p key={i}>
-        {trimmed.split('\n').map((line, j) => (
+        {renderInline(trimmed).map((el, j) => (
           <span key={j}>
             {j > 0 && <br />}
-            {line}
+            {el}
           </span>
         ))}
       </p>
     )
   })
+}
+
+/** 内联格式:**文字** 渲染为加粗 */
+function renderInline(text) {
+  return String(text || '').split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
+    part.startsWith('**') && part.endsWith('**')
+      ? <strong key={i}>{part.slice(2, -2)}</strong>
+      : part,
+  )
 }
 
 export default function ArticleDetail() {
