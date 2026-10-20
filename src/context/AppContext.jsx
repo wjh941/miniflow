@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { contentPosts } from '../content/posts'
 import {
   loadPosts, savePosts, loadSettings, saveSettings,
   vaultExists, createVault, unlockVault, sessionPostsCached,
@@ -21,6 +22,34 @@ export function AppProvider({ children }) {
     if (settings.lockEnabled) return sessionPostsCached() || [];
     return loadPosts();
   });
+  // 被用户隐藏(删除)的存档文章 id
+  const [hiddenContent, setHiddenContent] = useState(() => {
+    try {
+      const raw = localStorage.getItem('miniflow_v2_hidden_content');
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  /* ---------- 合并文章:内置存档 + 用户文章 ---------- */
+  const articles = useMemo(() => {
+    const shadowed = new Set(posts.map((p) => p.sourceId).filter(Boolean));
+    const visible = contentPosts
+      .filter((c) => !hiddenContent.includes(c.id) && !shadowed.has(c.id))
+      .map((c) => ({ ...c, isContent: true }));
+    return [...posts, ...visible].sort((a, b) =>
+      (b.createdAt || '').localeCompare(a.createdAt || ''),
+    );
+  }, [posts, hiddenContent]);
+
+  const hideContent = (id) => {
+    setHiddenContent((ids) => {
+      const next = [...ids, id];
+      try { localStorage.setItem('miniflow_v2_hidden_content', JSON.stringify(next)); } catch { /* ignore */ }
+      return next;
+    });
+  };
 
   /* ---------- 主题 ---------- */
   useEffect(() => {
@@ -62,7 +91,10 @@ export function AppProvider({ children }) {
   const update = (id, patch) =>
     persist(posts.map((p) => (p.id === id ? { ...p, ...patch, updatedAt: new Date().toISOString().slice(0, 10) } : p)));
 
-  const remove = (id) => persist(posts.filter((p) => p.id !== id));
+  const remove = (id) => {
+    if (id.startsWith('c_')) return hideContent(id);
+    return persist(posts.filter((p) => p.id !== id));
+  };
 
   /* ---------- 私密锁 ---------- */
   const enableLock = async (passcode) => {
@@ -98,13 +130,13 @@ export function AppProvider({ children }) {
 
   const value = useMemo(
     () => ({
-      posts, publish, update, remove, replaceAll,
+      posts: articles, userPosts: posts, hideContent, publish, update, remove, replaceAll,
       settings, setSettings,
       locked, lockEnabled: settings.lockEnabled,
       enableLock, unlock, lock, disableLock,
       vaultExists,
     }),
-    [posts, settings, locked],
+    [posts, hiddenContent, settings, locked],
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
