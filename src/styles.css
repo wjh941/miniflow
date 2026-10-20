@@ -106,10 +106,14 @@ a { color: var(--blue); text-decoration: none; }
 .search .icon { color: var(--text-3); display: flex; }
 
 /* ---------- 分段控制(Segmented Control) ---------- */
-.segmented { display: flex; background: var(--fill); border-radius: 9px; padding: 2px; margin: 10px 0; }
+.segmented {
+  display: flex; background: var(--fill); border-radius: 9px; padding: 2px; margin: 10px 0;
+  overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none;
+}
+.segmented::-webkit-scrollbar { display: none; }
 .segmented button {
-  flex: 1; padding: 6px 0; font-size: 13px; font-weight: 500; color: var(--text);
-  border-radius: 7px; transition: all 0.2s ease;
+  flex: none; padding: 6px 14px; font-size: 13px; font-weight: 500; color: var(--text);
+  border-radius: 7px; transition: all 0.2s ease; white-space: nowrap;
 }
 .segmented button.on { background: var(--bg-elevated); box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12); font-weight: 600; }
 
