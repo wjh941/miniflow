@@ -3,7 +3,32 @@ import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
 import { IconSearch, IconChevron } from '../components/icons'
 
-/** 按月份分组的文章列表(iOS 分组列表风格) */
+/** 根据标题生成稳定的渐变色索引 */
+function gradientFor(title) {
+  const palettes = [
+    ['#667eea', '#764ba2'],
+    ['#f093fb', '#f5576c'],
+    ['#4facfe', '#00f2fe'],
+    ['#43e97b', '#38f9d7'],
+    ['#fa709a', '#fee140'],
+    ['#a18cd1', '#fbc2eb'],
+    ['#ff9a9e', '#fecfef'],
+    ['#ffecd2', '#fcb69f'],
+    ['#a8edea', '#fed6e3'],
+    ['#96fbc4', '#f9f586'],
+  ]
+  let hash = 0
+  for (const ch of title) hash = ((hash << 5) - hash + ch.charCodeAt(0)) | 0
+  const [from, to] = palettes[Math.abs(hash) % palettes.length]
+  return `linear-gradient(135deg, ${from}, ${to})`
+}
+
+/** 估算阅读时长(中文约 400 字/分钟) */
+function readTime(text) {
+  const len = (text || '').replace(/\s/g, '').length
+  return Math.max(1, Math.ceil(len / 400))
+}
+
 export default function Home() {
   const { posts } = useApp()
   const [query, setQuery] = useState('')
@@ -74,23 +99,10 @@ export default function Home() {
 
         {groups.map(([month, list]) => (
           <div key={month}>
-            <div className="group-header">{monthLabel(month)}</div>
-            <div className="group">
-              {list.map((p) => (
-                <button key={p.id} className="row article-row" onClick={() => navigate(`/article/${p.id}`)}>
-                  <span className="grow">
-                    <span className="a-title">{p.title}</span>
-                    <span className="a-excerpt">{(p.content || '').slice(0, 60) || '(空)'}</span>
-                    <span className="a-meta">
-                      <span>{p.createdAt}</span>
-                      {p.tags?.slice(0, 2).map((t) => (
-                        <span key={t} className="a-tag">{t}</span>
-                      ))}
-                      {p.updatedAt && p.updatedAt !== p.createdAt && <span>已编辑</span>}
-                    </span>
-                  </span>
-                  <span className="chevron"><IconChevron /></span>
-                </button>
+            <div className="group-header">{monthLabel(month)} · {list.length} 篇</div>
+            <div className="card-grid">
+              {list.map((p, i) => (
+                <ArticleCard key={p.id} post={p} index={i} onClick={() => navigate(`/article/${p.id}`)} />
               ))}
             </div>
           </div>
@@ -110,4 +122,35 @@ function monthLabel(ym) {
   if (ym === '未知') return ym
   const [y, m] = ym.split('-')
   return `${y} 年 ${Number(m)} 月`
+}
+
+function ArticleCard({ post, onClick, index }) {
+  const gradient = gradientFor(post.title || '')
+  const excerpt = (post.content || '').replace(/##\s?/g, '').replace(/\n/g, ' ').trim().slice(0, 72)
+  const minutes = readTime(post.content)
+  return (
+    <div className="article-card" onClick={onClick} style={{ animationDelay: `${index * 0.04}s` }}>
+      <div className="card-gradient" style={{ background: gradient }}>
+        <span className="card-date">{post.createdAt}</span>
+        <span className="card-read">{minutes} min</span>
+      </div>
+      <div className="card-body">
+        <div className="card-title">{post.title}</div>
+        <div className="card-excerpt">{excerpt}{excerpt.length >= 72 ? '…' : ''}</div>
+        {post.tags?.length > 0 && (
+          <div className="card-tags">
+            {post.tags.slice(0, 3).map((t) => (
+              <span key={t} className="card-tag">{t}</span>
+            ))}
+          </div>
+        )}
+      </div>
+      <div className="card-chevron"><IconChevron /></div>
+    </div>
+  )
+}
+
+function readTime(text) {
+  const len = (text || '').replace(/\s/g, '').length
+  return Math.max(1, Math.ceil(len / 400))
 }

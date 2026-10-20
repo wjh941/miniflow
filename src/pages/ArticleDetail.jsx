@@ -115,11 +115,13 @@ export default function ArticleDetail() {
     navigate('/')
   }
 
+  const readMin = Math.max(1, Math.ceil((post.content || '').replace(/\s/g, '').length / 400))
+
   return (
     <div className="content reader">
       <h1>{post.title}</h1>
       <div className="meta">
-        {post.createdAt}
+        {post.createdAt} · 约 {readMin} 分钟
         {post.updatedAt && post.updatedAt !== post.createdAt && ' · 已编辑'}
       </div>
       <div className="body">{renderBody(post.content)}</div>
