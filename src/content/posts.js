@@ -303,7 +303,7 @@ v2.0 的重构回答了一个问题：**如果这是我每天真的要用的工�
     id: 'c_error_gallery',
     title: '报错图鉴：五个真实报错的完整解剖',
     tags: ['踩坑', '报错'],
-    date: '2026-10-19',
+    createdAt: '2026-10-19',
     content: `十三轮迭代里见过几十种报错。挑五个最有教学价值的，每个给出完整报错信息、逐层解释"它在说什么"、当时怎么发生、以及修复方案。所有截图和文本都是从真实运行环境里原样截取的。
 
 ## 1. PySide6：QMessageBox.question called with wrong argument types
