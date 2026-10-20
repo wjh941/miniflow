@@ -150,7 +150,4 @@ function ArticleCard({ post, onClick, index }) {
   )
 }
 
-function readTime(text) {
-  const len = (text || '').replace(/\s/g, '').length
-  return Math.max(1, Math.ceil(len / 400))
-}
+// readTime 定义在文件顶部(L27),此处不重复声明
