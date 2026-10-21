@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
 import { exportPostMarkdown } from '../lib/store'
@@ -98,6 +98,22 @@ export default function ArticleDetail() {
   const { posts, remove } = useApp()
   const post = posts.find((p) => p.id === id)
   const [confirming, setConfirming] = useState(false)
+  const [progress, setProgress] = useState(0)
+  const readerRef = useRef(null)
+
+  // 阅读进度:滚动时更新顶部进度条
+  useEffect(() => {
+    const onScroll = () => {
+      const el = readerRef.current
+      if (!el) return
+      const total = el.scrollHeight - window.innerHeight
+      if (total <= 0) { setProgress(0); return }
+      setProgress(Math.min(1, Math.max(0, window.scrollY / total)))
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    onScroll()
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   if (!post) {
     return (
@@ -118,7 +134,11 @@ export default function ArticleDetail() {
   const readMin = Math.max(1, Math.ceil((post.content || '').replace(/\s/g, '').length / 400))
 
   return (
-    <div className="content reader">
+    <>
+      {progress > 0 && (
+        <div className="reading-progress" style={{ width: `${progress * 100}%` }} />
+      )}
+      <div className="content reader" ref={readerRef}>
       <h1>{post.title}</h1>
       <div className="meta">
         {post.createdAt} · 约 {readMin} 分钟
@@ -149,5 +169,6 @@ export default function ArticleDetail() {
         </div>
       )}
     </div>
+    </>
   )
 }

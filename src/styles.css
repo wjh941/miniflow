@@ -373,6 +373,33 @@ a { color: var(--blue); text-decoration: none; }
 [data-theme='dark'] .callout-warn  { background: rgba(255, 159, 10, 0.1); }
 [data-theme='dark'] .callout-bad   { background: rgba(255, 59, 48, 0.1); }
 
+/* ---------- 页面切换过渡(iOS push/pop) ---------- */
+.page {
+  min-height: calc(100vh - var(--tabbar-h));
+}
+.page-push {
+  animation: pushIn var(--dur-normal) var(--ease-out) both;
+}
+.page-pop {
+  animation: popIn var(--dur-normal) var(--ease-out) both;
+}
+@keyframes pushIn {
+  from { opacity: 0; transform: translateX(30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes popIn {
+  from { opacity: 0; transform: translateX(-30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* 阅读进度条 */
+.reading-progress {
+  position: fixed; top: 0; left: 0; height: 3px; z-index: 60;
+  background: var(--blue); border-radius: 0 2px 2px 0;
+  transition: width 0.1s linear;
+  pointer-events: none;
+}
+
 /* ---------- 页面切换过渡 ---------- */
 .page-enter { animation: pageIn var(--dur-normal) var(--ease-out) both; }
 @keyframes pageIn { from { opacity: 0; transform: translateY(6px); } }
