@@ -1,9 +1,10 @@
 import { NavLink } from 'react-router-dom'
-import { IconHouse, IconPencil, IconGear } from './icons'
+import { IconHouse, IconPencil, IconGear, IconProfile } from './icons'
 
 const tabs = [
   { to: '/', label: '笔记', icon: IconHouse },
   { to: '/editor', label: '写作', icon: IconPencil },
+  { to: '/profile', label: '画像', icon: IconProfile },
   { to: '/settings', label: '设置', icon: IconGear },
 ]
 

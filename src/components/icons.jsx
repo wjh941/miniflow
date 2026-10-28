@@ -90,6 +90,15 @@ export function IconUpload({ size = 16 }) {
   )
 }
 
+export function IconProfile({ size = 24 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" {...base}>
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4.5 20.5c1.2-3.6 4-5.5 7.5-5.5s6.3 1.9 7.5 5.5" />
+    </svg>
+  )
+}
+
 export function IconFile({ size = 16 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" {...base}>

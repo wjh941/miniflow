@@ -6,11 +6,12 @@ import Home from './pages/Home'
 import ArticleDetail from './pages/ArticleDetail'
 import Editor from './pages/Editor'
 import Settings from './pages/Settings'
+import Profile from './pages/Profile'
 import Lock from './pages/Lock'
 import { IconLock } from './components/icons'
 
 /** 路由深度表:用于推断导航方向(push=从右滑入, pop=从左滑出) */
-const DEPTH = { '/': 0, '/editor': 1, '/settings': 1 }
+const DEPTH = { '/': 0, '/editor': 1, '/settings': 1, '/profile': 1 }
 
 function routeDepth(pathname) {
   if (pathname.startsWith('/article/')) return 1
@@ -52,6 +53,7 @@ export default function App() {
           <Route path="/article/:id" element={<ArticleDetail />} />
           <Route path="/editor" element={<Editor />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/profile" element={<Profile />} />
           <Route
             path="*"
             element={
